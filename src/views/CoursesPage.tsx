@@ -11,6 +11,8 @@ import { ProfessorDAO } from '../dao/ProfessorDAO';
 import { EnrollmentController } from '../controllers/EnrollmentController';
 import type { Enrollment } from '../models/Enrollment';
 import { GradeController } from '../controllers/GradeController';
+import { exportStudentEnrollmentsExcel, exportStudentEnrollmentsPDF, exportCoursesCountExcel, exportCoursesCountPDF } from '../lib/exporters';
+import { ReportDAO } from '../dao/ReportDAO';
 
 export default function CoursesPage() {
   const { user } = useAuth();
@@ -158,8 +160,54 @@ export default function CoursesPage() {
               <button className={`rounded px-2 py-1 ${studentShowMine ? 'bg-white shadow dark:bg-gray-900' : ''}`} onClick={()=>setStudentShowMine(true)}>Mis cursos</button>
             </div>
           )}
+          {user?.role === 'estudiante' && (
+            <>
+              <button
+                className="rounded-md border px-2 py-1 text-sm"
+                onClick={()=>{
+                  const name = user.full_name || 'estudiante';
+                  exportStudentEnrollmentsPDF(myEnrollments, name)
+                }}
+              >PDF</button>
+              <button
+                className="rounded-md border px-2 py-1 text-sm"
+                onClick={()=>{
+                  const name = user.full_name || 'estudiante';
+                  exportStudentEnrollmentsExcel(myEnrollments, name)
+                }}
+              >Excel</button>
+            </>
+          )}
           {user?.role === 'admin' && (
             <button className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" onClick={()=>{ resetForm(); setCreateOpen(true); }}>Nuevo curso</button>
+          )}
+          {user?.role === 'admin' && (
+            <>
+              <button
+                className="rounded-md border px-2 py-1 text-sm"
+                onClick={async ()=>{
+                  try {
+                    const rows = await ReportDAO.getCoursesWithCounts();
+                    exportCoursesCountPDF(rows)
+                  } catch (e: unknown) {
+                    const msg = e instanceof Error ? e.message : 'No se pudo exportar'
+                    void Swal.fire({icon:'error', title:'Exportación fallida', text: msg})
+                  }
+                }}
+              >PDF</button>
+              <button
+                className="rounded-md border px-2 py-1 text-sm"
+                onClick={async ()=>{
+                  try {
+                    const rows = await ReportDAO.getCoursesWithCounts();
+                    exportCoursesCountExcel(rows)
+                  } catch (e: unknown) {
+                    const msg = e instanceof Error ? e.message : 'No se pudo exportar'
+                    void Swal.fire({icon:'error', title:'Exportación fallida', text: msg})
+                  }
+                }}
+              >Excel</button>
+            </>
           )}
         </div>
       </div>

@@ -345,6 +345,36 @@ grant execute on function update_user_and_professor(uuid, text, text, text, text
 -- Idempotentes: usan ON CONFLICT/NOT EXISTS para evitar duplicados
 -- ==========================================================
 
+-- Reporte: cursos con profesor y cantidad de estudiantes
+create or replace function get_courses_with_counts()
+returns table (
+  course_id uuid,
+  name text,
+  credits int,
+  professor_name text,
+  professor_email text,
+  students_count int
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select c.id as course_id,
+         c.name,
+         c.credits,
+         u.full_name as professor_name,
+         u.email as professor_email,
+         coalesce(count(e.id), 0) as students_count
+  from courses c
+  left join professors p on p.id = c.professor_id
+  left join users_app u on u.id = p.user_id
+  left join enrollments e on e.course_id = c.id
+  group by c.id, c.name, c.credits, u.full_name, u.email
+  order by c.created_at desc;
+$$;
+
+grant execute on function get_courses_with_counts() to anon;
+
 -- Cuentas de acceso para profesores de prueba
 insert into users_app (email, password_hash, full_name, role)
 values
