@@ -15,6 +15,15 @@ export const StudentDAO = {
     }>;
     return rows as Student[];
   },
+  async findByUserId(userId: string): Promise<Student | null> {
+    const { data, error } = await supabase
+      .from('students')
+      .select('id, user_id, student_code, major, semester, user:users_app(id,email,full_name,role)')
+      .eq('user_id', userId)
+      .maybeSingle()
+    if (error) throw error
+    return (data as unknown as Student) ?? null
+  },
   async remove(id: string): Promise<void> {
     const { error } = await supabase.from('students').delete().eq('id', id);
     if (error) throw error;

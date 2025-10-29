@@ -45,7 +45,10 @@ export default function ProfessorsPage() {
       await ProfessorController.create(payload)
       setCreateOpen(false); resetForm(); await refresh()
       void Swal.fire({ icon: 'success', title: 'Profesor creado', timer: 1500, showConfirmButton: false })
-    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al crear') }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al crear'
+      void Swal.fire({icon:'error', title:'No se pudo crear', text: msg})
+    }
   }
 
   const openEdit = (p: Professor) => {
@@ -70,7 +73,10 @@ export default function ProfessorsPage() {
       await ProfessorController.update(editOpen.user_id, payload)
       setEditOpen(null); resetForm(); await refresh()
       void Swal.fire({ icon: 'success', title: 'Profesor actualizado', timer: 1500, showConfirmButton: false })
-    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al actualizar') }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al actualizar'
+      void Swal.fire({icon:'error', title:'No se pudo actualizar', text: msg})
+    }
   }
 
   const onDelete = async (id: string) => {
@@ -110,7 +116,9 @@ export default function ProfessorsPage() {
                   <td className="px-4 py-2">{p.academic_title}</td>
                   <td className="px-4 py-2 text-right space-x-2">
                     <button className="rounded-md border px-2 py-1 text-sm" onClick={()=>openEdit(p)}>Editar</button>
-                    <button className="rounded-md border px-2 py-1 text-sm text-red-600" onClick={()=>onDelete(p.id)}>Eliminar</button>
+                    {p.user_id !== user?.id && (
+                      <button className="rounded-md border px-2 py-1 text-sm text-red-600" onClick={()=>onDelete(p.id)}>Eliminar</button>
+                    )}
                   </td>
                 </tr>
               ))}

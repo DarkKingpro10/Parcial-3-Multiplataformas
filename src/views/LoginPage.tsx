@@ -24,30 +24,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto mt-16 max-w-md rounded-lg border p-6 shadow-sm">
-      <h2 className="mb-4 text-xl font-semibold">Iniciar sesión</h2>
-      <form onSubmit={onSubmit} className="space-y-3">
-        <div>
-          <label className="block text-sm">Email</label>
-          <input className="mt-1 w-full rounded-md border px-3 py-2" value={email} onChange={e=>setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-sm">Contraseña</label>
-          <input type="password" className="mt-1 w-full rounded-md border px-3 py-2" value={password} onChange={e=>setPassword(e.target.value)} />
-        </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button disabled={loading} className="w-full rounded-md bg-blue-600 px-3 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-60">
-          {loading ? 'Ingresando…' : 'Ingresar'}
-        </button>
-      </form>
+    <div className="flex min-h-[70vh] items-center justify-center">
+      <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-md  dark:bg-gray-900 dark:text-white">
+        <h2 className="mb-6 text-center text-2xl font-semibold light:text-neutral-900">Iniciar sesión</h2>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm light:text-neutral-700">Email</label>
+            <input
+              className="mt-1 w-full rounded-md border border-neutral-300 light:bg-white px-3 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm light:text-neutral-700">Contraseña</label>
+            <input
+              type="password"
+              className="mt-1 w-full rounded-md border border-neutral-300 light:bg-white px-3 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              value={password}
+              onChange={e=>setPassword(e.target.value)}
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            disabled={loading}
+            className="w-full rounded-md bg-linear-to-r from-indigo-600 to-blue-600 px-3 py-2 font-medium text-white hover:from-indigo-700 hover:to-blue-700 disabled:opacity-60"
+          >
+            {loading ? 'Ingresando…' : 'Ingresar'}
+          </button>
+        </form>
 
-      <div className="mt-6 rounded-md bg-neutral-50 p-3 text-sm">
-        <p className="mb-2 font-medium">Credenciales demo (actualiza según tu proyecto):</p>
-        <ul className="list-inside list-disc space-y-1">
-          {demoCredentials.map(c => (
-            <li key={c.role}><strong>{c.role}:</strong> {c.email} / {c.password}</li>
-          ))}
-        </ul>
+        <div className="mt-6 rounded-md light:bg-neutral-50 p-3 text-sm dark:border-2 dark:border-neutral-700">
+          <p className="mb-2 font-medium">Credenciales demo (actualiza según tu proyecto):</p>
+          <ul className="list-inside list-disc space-y-1">
+            {demoCredentials.map(c => (
+              <li key={c.role}><strong>{c.role}:</strong> {c.email} / {c.password}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   )

@@ -3,8 +3,10 @@ import { StudentController } from '../controllers/StudentController';
 import type { Student } from '../models/Student';
 import Modal from '../components/Modal';
 import Swal from 'sweetalert2';
+import { useAuth } from '../hooks/useAuth';
 
 export default function StudentsPage() {
+  const { user } = useAuth();
   const [list, setList] = useState<Student[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState<null | Student>(null);
@@ -36,7 +38,10 @@ export default function StudentsPage() {
       resetForm(); setCreateOpen(false);
       await refresh();
       void Swal.fire({ icon: 'success', title: 'Estudiante creado', timer: 1500, showConfirmButton: false });
-    } catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al crear'); }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al crear';
+      void Swal.fire({icon:'error', title:'No se pudo crear', text: msg});
+    }
   };
 
   const onDelete = async (id: string) => {
@@ -67,19 +72,21 @@ export default function StudentsPage() {
       setEditOpen(null); resetForm(); await refresh();
       void Swal.fire({ icon: 'success', title: 'Estudiante actualizado', timer: 1500, showConfirmButton: false });
     }
-    catch (e: unknown) { setError(e instanceof Error ? e.message : 'Error al actualizar'); }
+    catch (e: unknown) { const msg = e instanceof Error ? e.message : 'Error al actualizar'; void Swal.fire({icon:'error', title:'No se pudo actualizar', text: msg}); }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Estudiantes</h2>
-        <button
-          className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          onClick={() => { resetForm(); setCreateOpen(true); }}
-        >
-          Nuevo estudiante
-        </button>
+        {user?.role === 'admin' && (
+          <button
+            className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            onClick={() => { resetForm(); setCreateOpen(true); }}
+          >
+            Nuevo estudiante
+          </button>
+        )}
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       {loading ? <p className="text-neutral-500">Cargando...</p> : (
@@ -104,8 +111,14 @@ export default function StudentsPage() {
                   <td className="px-4 py-2">{s.major}</td>
                   <td className="px-4 py-2">{s.semester ?? ''}</td>
                   <td className="px-4 py-2 text-right space-x-2">
-                    <button className="rounded-md border px-2 py-1 text-sm hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800" onClick={()=>openEdit(s)}>Editar</button>
-                    <button className="rounded-md border px-2 py-1 text-sm text-red-600 hover:bg-red-50 dark:border-neutral-700 dark:text-red-400 dark:hover:bg-neutral-800" onClick={()=>onDelete(s.id)}>Eliminar</button>
+                    {user?.role === 'admin' && (
+                      <>
+                        <button className="rounded-md border px-2 py-1 text-sm hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800" onClick={()=>openEdit(s)}>Editar</button>
+                        {s.user_id !== user?.id && (
+                          <button className="rounded-md border px-2 py-1 text-sm text-red-600 hover:bg-red-50 dark:border-neutral-700 dark:text-red-400 dark:hover:bg-neutral-800" onClick={()=>onDelete(s.id)}>Eliminar</button>
+                        )}
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -115,6 +128,7 @@ export default function StudentsPage() {
       )}
 
       {/* Modal Crear */}
+      {user?.role === 'admin' && (
       <Modal open={createOpen} title="Nuevo estudiante" onClose={() => setCreateOpen(false)}
         actions={
           <button type="submit" form="student-create" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">Guardar</button>
@@ -148,9 +162,11 @@ export default function StudentsPage() {
             </div>
           </div>
         </form>
-      </Modal>
+  </Modal>
+  )}
 
       {/* Modal Editar */}
+      {user?.role === 'admin' && (
       <Modal open={!!editOpen} title="Editar estudiante" onClose={() => { setEditOpen(null); }}
         actions={
           <button type="submit" form="student-edit" className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">Actualizar</button>
@@ -186,7 +202,8 @@ export default function StudentsPage() {
             </div>
           </div>
         </form>
-      </Modal>
+  </Modal>
+  )}
     </div>
   );
 }
