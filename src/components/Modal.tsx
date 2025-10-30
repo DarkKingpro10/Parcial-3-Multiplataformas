@@ -12,7 +12,7 @@ export default function Modal({ open, title, onClose, actions, children }: Modal
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg rounded-lg bg-white shadow-lg dark:bg-neutral-900">
+      <div className="relative z-10 w-3/4 md:w-full max-w-lg rounded-lg bg-white shadow-lg dark:bg-neutral-900">
         {title && (
           <div className="border-b px-5 py-3 font-semibold text-neutral-900 dark:text-neutral-100 dark:border-neutral-800">
             {title}
